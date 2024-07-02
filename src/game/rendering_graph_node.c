@@ -537,6 +537,38 @@ static void geo_process_background(struct GraphNodeBackground *node) {
     }
 }
 
+typedef struct {
+    int cmd:8;
+    int s:12;
+    int t:12;
+    int pad:4;
+    int i:4;
+    int u:12;
+    int v:12;
+} SetTileSize;
+
+#define PACK_TILESIZE(w, d) ((w << 2) + d)
+
+static void geo_process_tile_scroll(struct GraphNodeTileScroll *node) {
+    SetTileSize* tile;
+    void* displayList;
+    struct TileScrollSettings *data;
+    u32 i;
+
+    data = segmented_to_virtual(node->data);
+    displayList = segmented_to_virtual(node->displayList);
+
+    for (i = 0; i < node->size; i++) {
+        tile = (SetTileSize*)displayList + data->offset;
+        tile->s += data->x;
+        tile->u += data->x;
+        tile->t -= data->y;
+        tile->v -= data->y;
+
+        data++;
+    }
+}   
+
 /**
  * Render an animated part. The current animation state is not part of the node
  * but set in global variables. If an animated part is skipped, everything afterwards desyncs.
@@ -1021,6 +1053,9 @@ void geo_process_node_and_siblings(struct GraphNode *firstNode) {
                         break;
                     case GRAPH_NODE_TYPE_BACKGROUND:
                         geo_process_background((struct GraphNodeBackground *) curGraphNode);
+                        break;
+                    case GRAPH_NODE_TYPE_TILE_SCROLL:
+                        geo_process_tile_scroll((struct GraphNodeTileScroll *) curGraphNode);
                         break;
                     case GRAPH_NODE_TYPE_HELD_OBJ:
                         geo_process_held_object((struct GraphNodeHeldObject *) curGraphNode);

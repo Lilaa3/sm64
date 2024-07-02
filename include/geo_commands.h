@@ -360,11 +360,15 @@
      GEO_BACKGROUND(background, NULL)
 
 /**
- * 0x1A: No operation
+ * 0x1A: Create tile scroll scene graph node
+ *   0x02: s16 size
+ *   0x04: [u32* displayList: if MSbit of params set, display list segmented address]
+ *   0x08: [TileScrollSettings* tileData: segmented address]
  */
-#define GEO_NOP_1A() \
-    CMD_BBH(0x1A, 0x00, 0x0000), \
-    CMD_HH(0x0000, 0x0000)
+#define GEO_TILE_SCROLL(size, displayList, tileData) \
+    CMD_BBH(0x1A, 0x00, size), \
+    CMD_PTR(displayList), \
+    CMD_PTR(tileData)
 
 /**
  * 0x1B: Copy the shared children from an object parent node from a specific view
