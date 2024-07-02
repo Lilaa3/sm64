@@ -493,6 +493,28 @@ struct GraphNodeBackground *init_graph_node_background(struct AllocOnlyPool *poo
 }
 
 /**
+ * Allocates and returns a newly created tile scroll node
+ */
+struct GraphNodeTileScroll *init_graph_node_tile_scroll(struct AllocOnlyPool *pool,
+                                                       struct GraphNodeTileScroll *graphNode,
+                                                       s32 drawingLayer, void* displayList, u16 size, struct TileScrollSettings* data) {
+    if (pool != NULL) {
+        graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeTileScroll));
+    }
+
+    if (graphNode != NULL) {
+        init_scene_graph_node_links(&graphNode->node, GRAPH_NODE_TYPE_TILE_SCROLL);
+
+        graphNode->node.flags = (drawingLayer << 8) | (graphNode->node.flags & 0xFF);
+        graphNode->displayList = displayList;
+        graphNode->size = size;
+        graphNode->data = data;
+    }
+
+    return graphNode;
+}
+
+/**
  * Allocates and returns a newly created held object node
  */
 struct GraphNodeHeldObject *init_graph_node_held_object(struct AllocOnlyPool *pool,

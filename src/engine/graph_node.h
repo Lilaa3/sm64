@@ -41,6 +41,7 @@
 #define GRAPH_NODE_TYPE_OBJECT_PARENT         0x029
 #define GRAPH_NODE_TYPE_GENERATED_LIST       (0x02A | GRAPH_NODE_TYPE_FUNCTIONAL)
 #define GRAPH_NODE_TYPE_BACKGROUND           (0x02C | GRAPH_NODE_TYPE_FUNCTIONAL)
+#define GRAPH_NODE_TYPE_TILE_SCROLL           0x02D
 #define GRAPH_NODE_TYPE_HELD_OBJ             (0x02E | GRAPH_NODE_TYPE_FUNCTIONAL)
 #define GRAPH_NODE_TYPE_CULLING_RADIUS        0x02F
 
@@ -303,6 +304,16 @@ struct GraphNodeBackground {
     /*0x1C*/ s32 background; // background ID, or rgba5551 color if fnNode.func is null
 };
 
+/** GraphNode that scrolls a tile using set tile size
+ */
+struct GraphNodeTileScroll {
+    /*0x00*/ struct GraphNode node;
+    /*0x14*/ void* displayList;
+    /*0x18*/ struct TileScrollSettings* data;
+    /*0x1C*/ u16 size;
+    /*0x1E*/
+};
+
 /** Renders the object that Mario is holding.
  */
 struct GraphNodeHeldObject {
@@ -379,6 +390,8 @@ struct GraphNodeGenerated *init_graph_node_generated(struct AllocOnlyPool *pool,
                                                      GraphNodeFunc gfxFunc, s32 parameter);
 struct GraphNodeBackground *init_graph_node_background(struct AllocOnlyPool *pool, struct GraphNodeBackground *sp1c,
                                                        u16 background, GraphNodeFunc backgroundFunc, s32 zero);
+struct GraphNodeTileScroll *init_graph_node_tile_scroll(struct AllocOnlyPool *pool, struct GraphNodeTileScroll *graphNode,
+                                                       s32 drawingLayer, void* displayList, u16 size, struct TileScrollSettings* data);
 struct GraphNodeHeldObject *init_graph_node_held_object(struct AllocOnlyPool *pool, struct GraphNodeHeldObject *sp1c,
                                                         struct Object *objNode, Vec3s translation,
                                                         GraphNodeFunc nodeFunc, s32 playerIndex);

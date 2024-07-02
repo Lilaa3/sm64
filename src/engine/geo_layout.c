@@ -35,7 +35,7 @@ GeoLayoutCommandProc GeoLayoutJumpTable[] = {
     geo_layout_cmd_node_object_parent,
     geo_layout_cmd_node_generated,
     geo_layout_cmd_node_background,
-    geo_layout_cmd_nop,
+    geo_layout_cmd_tile_scroll,
     geo_layout_cmd_copy_view,
     geo_layout_cmd_node_held_obj,
     geo_layout_cmd_node_scale,
@@ -701,9 +701,25 @@ void geo_layout_cmd_node_background(void) {
     gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
 }
 
-// 0x1A: No operation
-void geo_layout_cmd_nop(void) {
-    gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
+/* 
+  0x1A: Create tile scroll scene graph node
+   cmd+0x02: s16 size
+   cmd+0x04: [u32 displayList: if MSbit of params set, display list segmented address]
+   cmd+0x08: [u32 tileData: segmented address]
+*/
+void geo_layout_cmd_tile_scroll(void) {
+    struct GraphNodeTileScroll *graphNode;
+
+    graphNode = init_graph_node_tile_scroll(
+        gGraphNodePool, NULL,
+        cur_geo_cmd_u8(0x01),   // layer
+        cur_geo_cmd_s16(0x02),  // size
+        cur_geo_cmd_ptr(0x04),  // display list
+        (struct TileScrollSettings*) cur_geo_cmd_ptr(0x08)); // data pointer
+
+    register_scene_graph_node(&graphNode->node);
+
+    gGeoLayoutCommand += 0x0C << CMD_SIZE_SHIFT;
 }
 
 /*

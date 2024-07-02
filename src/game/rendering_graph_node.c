@@ -537,6 +537,31 @@ static void geo_process_background(struct GraphNodeBackground *node) {
     }
 }
 
+static void geo_process_tile_scroll(struct GraphNodeTileScroll *node) {
+    struct TileScrollSettings *data;
+    Gfx *gfx, *gfxStart;
+    u32 i;
+
+    data = segmented_to_virtual(node->data);
+
+    gfxStart = alloc_display_list(sizeof(Gfx) * (node->size + 1));
+    gfx = gfxStart;
+    for (i = 0; i < node->size; i++) {
+        gDPSetTileSize(gfx++, data->tile, data->x * gGlobalTimer, data->y * gGlobalTimer, (data->width - 1) << G_TEXTURE_IMAGE_FRAC, (data->height - 1) << G_TEXTURE_IMAGE_FRAC)
+        data++;
+    }
+    gSPEndDisplayList(gfx++);
+
+    geo_append_display_list((void *) VIRTUAL_TO_PHYSICAL(gfxStart), node->node.flags >> 8);
+    if (node->displayList != NULL) {
+        geo_append_display_list(node->displayList, node->node.flags >> 8);
+    }
+
+    if (node->node.children != NULL) {
+        geo_process_node_and_siblings(node->node.children);
+    }
+}   
+
 /**
  * Render an animated part. The current animation state is not part of the node
  * but set in global variables. If an animated part is skipped, everything afterwards desyncs.
@@ -1021,6 +1046,9 @@ void geo_process_node_and_siblings(struct GraphNode *firstNode) {
                         break;
                     case GRAPH_NODE_TYPE_BACKGROUND:
                         geo_process_background((struct GraphNodeBackground *) curGraphNode);
+                        break;
+                    case GRAPH_NODE_TYPE_TILE_SCROLL:
+                        geo_process_tile_scroll((struct GraphNodeTileScroll *) curGraphNode);
                         break;
                     case GRAPH_NODE_TYPE_HELD_OBJ:
                         geo_process_held_object((struct GraphNodeHeldObject *) curGraphNode);

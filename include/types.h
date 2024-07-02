@@ -77,6 +77,15 @@ struct VblankHandler {
     OSMesg msg;
 };
 
+struct TileScrollSettings {
+    /*0x00*/ s16 x;
+    /*0x02*/ s16 y;
+    /*0x04*/ u16 width;
+    /*0x06*/ u16 height;
+    /*0x08*/ u8 tile;
+    /*0x09*/
+};
+
 #define ANIM_FLAG_NOLOOP     (1 << 0) // 0x01
 #define ANIM_FLAG_BACKWARD   (1 << 1) // 0x02
 #define ANIM_FLAG_2          (1 << 2) // 0x04
